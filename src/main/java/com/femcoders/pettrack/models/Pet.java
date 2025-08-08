@@ -26,7 +26,7 @@ public class Pet {
     @Column(nullable = false)
     private String breed;
 
-    @Column(nullable = false)
+    @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
     @Column(nullable = false)
