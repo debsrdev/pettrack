@@ -1,6 +1,6 @@
 package com.femcoders.pettrack.services;
 
-import com.femcoders.pettrack.dtos.pet.PetMapperImpl;
+import com.femcoders.pettrack.dtos.pet.PetMapper;
 import com.femcoders.pettrack.dtos.pet.PetResponse;
 import com.femcoders.pettrack.models.Pet;
 import com.femcoders.pettrack.repositories.PetRepository;
@@ -13,12 +13,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PetService {
     private final PetRepository petRepository;
-    private final PetMapperImpl petMapperImpl;
+    private final PetMapper petMapper;
 
     public List<PetResponse> getAllPets() {
         List<Pet> pets = petRepository.findAll();
         return pets.stream()
-                .map(pet -> petMapperImpl.entityToDto(pet))
+                .map(pet -> petMapper.entityToDto(pet))
                 .toList();
     }
 }
