@@ -33,7 +33,6 @@ public class PetService {
                     boolean hasSpecies = species != null && !species.isBlank();
                     boolean hasBreed = breed != null && !breed.isBlank();
 
-
                     if (hasName) {
                         predicates.add(cb.like(cb.lower(
                                 root.get("name")),
