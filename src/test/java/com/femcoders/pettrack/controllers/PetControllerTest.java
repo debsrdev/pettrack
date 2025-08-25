@@ -109,4 +109,32 @@ public class PetControllerTest {
                     .andExpect(jsonPath("$", empty()));
         }
     }
+
+    @Nested
+    @DisplayName("Get /api/pets/{id}")
+    class GetPetByIdTests {
+        private final Long PET_ID_VALID = 1L;
+        private final Long PET_ID_NOT_VALID = 100L;
+
+        @Test
+        @DisplayName("Should return pet by ID with existing ID")
+        void getPetById_returnsPet_whenIdExists() throws Exception {
+            performGetRequest("/api/pets/" + PET_ID_VALID, null)
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.id", is(PET_ID_VALID.intValue())))
+                    .andExpect(jsonPath("$.name", is("Luna")));
+
+        }
+
+        @Test
+        @DisplayName("Should not return pet by ID with non existing ID")
+        void getPetById_returnsNotFound_whenIdNotExists() throws Exception {
+            performGetRequest("/api/pets/" + PET_ID_NOT_VALID, null)
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value("Pet not found with id 100"))
+                    .andExpect(jsonPath("$.timestamp").exists());
+
+        }
+    }
 }
