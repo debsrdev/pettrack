@@ -2,6 +2,7 @@ package com.femcoders.pettrack.services;
 
 import com.femcoders.pettrack.dtos.pet.PetMapper;
 import com.femcoders.pettrack.dtos.pet.PetResponse;
+import com.femcoders.pettrack.exceptions.EntityNotFoundException;
 import com.femcoders.pettrack.models.Pet;
 import com.femcoders.pettrack.repositories.PetRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,5 +54,11 @@ public class PetService {
         return pets.stream()
                 .map(pet -> petMapper.entityToDto(pet))
                 .toList();
+    }
+
+    public PetResponse getPetById(Long id) {
+        Pet pet = petRepository.findById(id)
+                .orElseThrow(()->new EntityNotFoundException(Pet.class.getSimpleName(), id));
+        return petMapper.entityToDto(pet);
     }
 }

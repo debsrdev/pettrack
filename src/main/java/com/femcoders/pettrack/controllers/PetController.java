@@ -5,10 +5,7 @@ import com.femcoders.pettrack.dtos.pet.PetResponse;
 import com.femcoders.pettrack.services.PetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,5 +30,11 @@ public class PetController {
         return ResponseEntity.ok(
             petService.getFilteredPets(name, species, breed)
         );
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PetResponse> getPetById(@PathVariable Long id) {
+        PetResponse pet = petService.getPetById(id);
+        return ResponseEntity.ok(pet);
     }
 }
