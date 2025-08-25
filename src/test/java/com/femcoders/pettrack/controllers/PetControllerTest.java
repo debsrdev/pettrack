@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -22,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("PetController Integration Tests")
 @Sql(scripts = "/test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class PetControllerTest {
     @Autowired
@@ -49,6 +51,20 @@ public class PetControllerTest {
                     .andExpect(jsonPath("$[0].name", is("Luna")))
                     .andExpect(jsonPath("$[0].species", is("Perro")))
                     .andExpect(jsonPath("$[9].breed", is("Chihuahua")));
+        }
+
+        @Test
+        @DisplayName("Should return pets with expected structure and data types")
+        void getAllPets_returnsCorrectStructureAndTypes() throws Exception {
+            performGetRequest("/api/pets")
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].id").isNumber())
+                    .andExpect(jsonPath("$[0].name").isString())
+                    .andExpect(jsonPath("$[0].species").isString())
+                    .andExpect(jsonPath("$[0].breed").isString())
+                    .andExpect(jsonPath("$[0].birthDate").isString())
+                    .andExpect(jsonPath("$[0].birthDate" , matchesPattern("\\d{4}-\\d{2}-\\d{2}")))
+                    .andExpect(jsonPath("$[0].username").isString());
         }
 
     }
