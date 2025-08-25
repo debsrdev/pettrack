@@ -13,9 +13,9 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.matchesPattern;
+import java.util.Map;
+
+import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -32,10 +32,16 @@ public class PetControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private ResultActions performGetRequest(String url) throws Exception {
-        return mockMvc.perform(get(url)
+    private ResultActions performGetRequest(String url, Map<String, String> params) throws Exception {
+        var requestBuilder = get(url)
                 .with(user("testuser").roles("USER"))
-                .accept(MediaType.APPLICATION_JSON));
+                .accept(MediaType.APPLICATION_JSON);
+
+        if (params != null) {
+            params.forEach((key, value) -> requestBuilder.param(key, value));
+        }
+
+        return mockMvc.perform(requestBuilder);
     }
 
     @Nested
@@ -44,7 +50,7 @@ public class PetControllerTest {
         @Test
         @DisplayName("Should return a list of all pets with status 200 OK and correct content type")
         void getAllPets_returnsListOfPets() throws Exception {
-            performGetRequest("/api/pets")
+            performGetRequest("/api/pets", null)
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$", hasSize(12)))
@@ -56,7 +62,7 @@ public class PetControllerTest {
         @Test
         @DisplayName("Should return pets with expected structure and data types")
         void getAllPets_returnsCorrectStructureAndTypes() throws Exception {
-            performGetRequest("/api/pets")
+            performGetRequest("/api/pets", null)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[0].id").isNumber())
                     .andExpect(jsonPath("$[0].name").isString())
@@ -66,6 +72,41 @@ public class PetControllerTest {
                     .andExpect(jsonPath("$[0].birthDate" , matchesPattern("\\d{4}-\\d{2}-\\d{2}")))
                     .andExpect(jsonPath("$[0].username").isString());
         }
+    }
 
+    @Nested
+    @DisplayName("Get /api/pets/filter")
+    class getFilteredPetsTests {
+        @Test
+        @DisplayName("Should return pets filtered by name, species and/or breed")
+        void getFilteredPets_returnFilteredResults() throws Exception {
+            performGetRequest("/api/pets/filter", Map.of(
+                    "name", "Luna",
+                    "species", "perro",
+                    "breed", "golden"
+            ))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$", not(empty())))
+                    .andExpect(jsonPath("$[?(@.name == 'Luna')]").exists());
+        }
+
+        @Test
+        @DisplayName("Should return all pets when no filter is applied")
+        void getFilteredPets_returnAllWhenNoParams() throws Exception {
+            performGetRequest("/api/pets/filter", null)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()", greaterThanOrEqualTo(12)));
+        }
+
+        @Test
+        @DisplayName("Should return empty list when filter has no matches")
+        void getFilteredPets_returnEmptyWhenNoMatch() throws Exception {
+            performGetRequest("/api/pets/filter", Map.of(
+                    "name", "nombrequenoexiste"
+            ))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", empty()));
+        }
     }
 }
