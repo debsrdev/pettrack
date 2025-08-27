@@ -4,7 +4,7 @@ DELETE FROM users;
 
 
 INSERT INTO users(id, username, email, password, role) VALUES
-(1, 'Debora', 'debora@user.com', 'Debora123.', 'USER'),
+(1, 'Debora', 'debora@user.com', '$2a$12$xuHYlMnpjp5VbIcxcEZFveIWU7DTVK2ufFRCrd7Or0AfeAWASK3gi', 'USER'),
 (2, 'Roberto', 'roberto@user.com', 'Roberto123.', 'USER'),
 (3, 'Jenni', 'jenni@user.com', 'Jenni123.', 'USER'),
 (4, 'Carmen', 'carmen@vet.com', 'Carmen123.', 'VETERINARY'),
