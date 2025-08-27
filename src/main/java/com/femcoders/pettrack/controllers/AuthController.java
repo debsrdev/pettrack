@@ -1,6 +1,7 @@
 package com.femcoders.pettrack.controllers;
 
 import com.femcoders.pettrack.dtos.user.JwtResponse;
+import com.femcoders.pettrack.dtos.user.LoginRequest;
 import com.femcoders.pettrack.dtos.user.UserRequest;
 import com.femcoders.pettrack.dtos.user.UserResponse;
 import com.femcoders.pettrack.security.UserDetail;
@@ -27,9 +28,9 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(userRequest.username(), userRequest.password())
+                new UsernamePasswordAuthenticationToken(loginRequest.identifier(), loginRequest.password())
         );
         UserDetail userDetail = (UserDetail) authentication.getPrincipal();
         String token = jwtService.generateToken(userDetail);

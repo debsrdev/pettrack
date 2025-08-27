@@ -22,9 +22,10 @@ public class UserService implements UserDetailsService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public UserDetail loadUserByUsername(String username) throws EntityNotFoundException {
-        User user = userRepository.findByUsernameIgnoreCase(username)
-                .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName(), username));
+    public UserDetail loadUserByUsername(String identifier) throws EntityNotFoundException {
+        User user = userRepository.findByUsernameIgnoreCase(identifier)
+                .or(()-> userRepository.findByEmailIgnoreCase(identifier))
+                .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName(), " username or email " + identifier));
         return new UserDetail(user);
     }
 
