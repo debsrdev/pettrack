@@ -90,4 +90,26 @@ public class PetService {
 
         return petMapper.entityToDto(pet);
     }
+
+    public PetResponse updatePet(Long id, PetRequest petRequest, UserDetail userDetail) {
+        validateVeterinary(userDetail);
+
+        Pet petToUpdate = petRepository.findById(id)
+                .orElseThrow(()->new EntityNotFoundException(Pet.class.getSimpleName(), id));
+
+        petToUpdate.setName(petRequest.name());
+        petToUpdate.setSpecies(petRequest.species());
+        petToUpdate.setBreed(petRequest.breed());
+        petToUpdate.setBirthDate(petRequest.birthDate());
+        petToUpdate.setImage(petRequest.image());
+
+        User newPetOwner = userRepository.findByUsernameIgnoreCase(petRequest.username())
+                .orElseThrow(()->new NoSuchElementException("User not found with username " + petRequest.username()));
+
+        petToUpdate.setUser(newPetOwner);
+
+        petRepository.save(petToUpdate);
+        return petMapper.entityToDto(petToUpdate);
+
+    }
 }
