@@ -43,8 +43,17 @@ public class PetController {
     }
 
     @PostMapping
-    public ResponseEntity<PetResponse> createPet(@RequestBody @Valid PetRequest petRequest, @AuthenticationPrincipal UserDetail userDetail) {
+    public ResponseEntity<PetResponse> createPet(@RequestBody @Valid PetRequest petRequest,
+                                                 @AuthenticationPrincipal UserDetail userDetail) {
         PetResponse createdPet = petService.createPet(petRequest, userDetail);
         return new ResponseEntity<>(createdPet, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PetResponse> updatePet(@PathVariable Long id,
+                                                 @RequestBody @Valid PetRequest petRequest,
+                                                 @AuthenticationPrincipal UserDetail userDetail) {
+        PetResponse updatedPet = petService.updatePet(id, petRequest, userDetail);
+        return ResponseEntity.ok(updatedPet);
     }
 }
