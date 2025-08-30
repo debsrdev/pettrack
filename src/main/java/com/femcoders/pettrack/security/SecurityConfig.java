@@ -29,6 +29,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/pets").hasRole("VETERINARY")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions
