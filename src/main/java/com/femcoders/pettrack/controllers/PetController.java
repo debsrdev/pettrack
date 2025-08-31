@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,5 +56,12 @@ public class PetController {
                                                  @AuthenticationPrincipal UserDetail userDetail) {
         PetResponse updatedPet = petService.updatePet(id, petRequest, userDetail);
         return ResponseEntity.ok(updatedPet);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> deletePet(@PathVariable Long id,
+                                                         @AuthenticationPrincipal UserDetail userDetail) {
+        Map<String, String> response = petService.deletePet(id, userDetail);
+        return ResponseEntity.ok(response);
     }
 }

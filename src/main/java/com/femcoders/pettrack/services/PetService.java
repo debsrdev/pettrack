@@ -9,12 +9,14 @@ import com.femcoders.pettrack.models.User;
 import com.femcoders.pettrack.repositories.PetRepository;
 import com.femcoders.pettrack.repositories.UserRepository;
 import com.femcoders.pettrack.security.UserDetail;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import jakarta.persistence.criteria.Predicate;
@@ -79,6 +81,7 @@ public class PetService {
         return petMapper.entityToDto(pet);
     }
 
+    @Transactional
     public PetResponse createPet(PetRequest petRequest, UserDetail userDetail) {
         validateVeterinary(userDetail);
 
@@ -91,6 +94,7 @@ public class PetService {
         return petMapper.entityToDto(pet);
     }
 
+    @Transactional
     public PetResponse updatePet(Long id, PetRequest petRequest, UserDetail userDetail) {
         validateVeterinary(userDetail);
 
@@ -110,6 +114,18 @@ public class PetService {
 
         petRepository.save(petToUpdate);
         return petMapper.entityToDto(petToUpdate);
+    }
 
+    @Transactional
+    public Map<String, String> deletePet(Long id, UserDetail userDetail) {
+        validateVeterinary(userDetail);
+
+        Pet petToDelete = petRepository.findById(id)
+                .orElseThrow(()->new EntityNotFoundException(Pet.class.getSimpleName(), id));
+
+        petRepository.delete(petToDelete);
+
+        String message = "Pet '" + petToDelete.getName() + "' with id:" + petToDelete.getId() + " has been deleted successfully";
+        return Map.of("message", message);
     }
 }

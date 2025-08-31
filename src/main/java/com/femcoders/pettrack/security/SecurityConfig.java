@@ -31,6 +31,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/pets").hasRole("VETERINARY")
                         .requestMatchers(HttpMethod.PUT, "/api/pets/{id}").hasRole("VETERINARY")
+                        .requestMatchers(HttpMethod.DELETE, "/api/pets/{id}").hasRole("VETERINARY")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions
