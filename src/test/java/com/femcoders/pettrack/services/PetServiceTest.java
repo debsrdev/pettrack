@@ -1,10 +1,14 @@
 package com.femcoders.pettrack.services;
 
 import com.femcoders.pettrack.dtos.pet.PetMapper;
+import com.femcoders.pettrack.dtos.pet.PetRequest;
 import com.femcoders.pettrack.dtos.pet.PetResponse;
 import com.femcoders.pettrack.models.Pet;
+import com.femcoders.pettrack.models.Role;
 import com.femcoders.pettrack.models.User;
 import com.femcoders.pettrack.repositories.PetRepository;
+import com.femcoders.pettrack.repositories.UserRepository;
+import com.femcoders.pettrack.security.UserDetail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -22,6 +26,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -35,6 +40,9 @@ public class PetServiceTest {
     @Mock
     PetMapper petMapper;
 
+    @Mock
+    UserRepository userRepository;
+
     @InjectMocks
     PetService petService;
 
@@ -42,13 +50,26 @@ public class PetServiceTest {
     private Pet pet2;
     private PetResponse petResponse1;
     private PetResponse petResponse2;
+    private Pet petNew;
+    private PetRequest petRequestNew;
+    private PetResponse petResponseNew;
+    private User user;
+    private UserDetail userVeterinary;
 
     @BeforeEach
     void setup() {
-        User user = User.builder()
+        user = User.builder()
                 .id(1L)
                 .username("Debora")
                 .build();
+
+        userVeterinary = new UserDetail(
+                User.builder()
+                        .id(4L)
+                        .username("Carmen")
+                        .role(Role.VETERINARY)
+                        .build()
+        );
 
         pet1 = Pet.builder()
                 .id(1L)
@@ -92,6 +113,35 @@ public class PetServiceTest {
 
         lenient().when(petMapper.entityToDto(pet1)).thenReturn(petResponse1);
         lenient().when(petMapper.entityToDto(pet2)).thenReturn(petResponse2);
+
+        petRequestNew = new PetRequest(
+                "Trufa",
+                "Perro",
+                "Caniche Toy",
+                LocalDate.parse("2021-03-15"),
+                "https://example.com/images/trufa.jpg",
+                "Debora"
+        );
+
+        petNew = Pet.builder()
+                .id(20L)
+                .name("Trufa")
+                .species("Perro")
+                .breed("Caniche Toy")
+                .birthDate(LocalDate.parse("2021-03-15"))
+                .image("https://example.com/images/trufa.jpg")
+                .user(user)
+                .build();
+
+        petResponseNew = new PetResponse(
+                20L,
+                "Trufa",
+                "Perro",
+                "Caniche Toy",
+                LocalDate.parse("2021-03-15"),
+                "https://example.com/images/trufa.jpg",
+                "Debora"
+        );
     }
 
     @Nested
@@ -295,5 +345,31 @@ public class PetServiceTest {
             verify(petMapper).entityToDto(pet1);
             verify(petMapper).entityToDto(pet2);
         }
+    }
+
+    @Nested
+    @DisplayName("createPet")
+    class createPetTests {
+        @Test
+        @DisplayName("Should create a pet when veterinary is authenticated successfully")
+        void shouldCreateAPetWhenVeterinaryAuthenticated() {
+            given(userRepository.findByUsernameIgnoreCase("Debora")).willReturn(Optional.of(user));
+            given(petMapper.dtoToEntity(petRequestNew, user)).willReturn(petNew);
+            given(petRepository.save(petNew)).willReturn(petNew);
+            given(petMapper.entityToDto(petNew)).willReturn(petResponseNew);
+
+            PetResponse result = petService.createPet(petRequestNew, userVeterinary);
+
+            assertThat(result).isNotNull();
+            assertThat(result.name()).isEqualTo("Trufa");
+            assertThat(result.species()).isEqualTo("Perro");
+            assertThat(result.username()).isEqualTo("Debora");
+
+            verify(userRepository).findByUsernameIgnoreCase("Debora");
+            verify(petMapper).dtoToEntity(petRequestNew, user);
+            verify(petRepository).save(petNew);
+            verify(petMapper).entityToDto(petNew);
+        }
+
     }
 }
