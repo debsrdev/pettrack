@@ -1,6 +1,10 @@
 package com.femcoders.pettrack.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.femcoders.pettrack.models.Role;
+import com.femcoders.pettrack.models.User;
+import com.femcoders.pettrack.security.UserDetail;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -32,6 +36,14 @@ public class PetControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private String asJsonString(Object object) {
+        try {
+            return objectMapper.writeValueAsString(object);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
     private ResultActions performGetRequest(String url, Map<String, String> params) throws Exception {
         var requestBuilder = get(url)
                 .with(user("testuser").roles("USER"))
@@ -42,6 +54,14 @@ public class PetControllerTest {
         }
 
         return mockMvc.perform(requestBuilder);
+    }
+
+    private ResultActions performPostRequest(String url, Object body, UserDetail userDetail) throws Exception {
+        return mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(body))
+                .with(user(userDetail))
+                .accept(MediaType.APPLICATION_JSON));
     }
 
     @Nested
@@ -69,7 +89,7 @@ public class PetControllerTest {
                     .andExpect(jsonPath("$[0].species").isString())
                     .andExpect(jsonPath("$[0].breed").isString())
                     .andExpect(jsonPath("$[0].birthDate").isString())
-                    .andExpect(jsonPath("$[0].birthDate" , matchesPattern("\\d{4}-\\d{2}-\\d{2}")))
+                    .andExpect(jsonPath("$[0].birthDate", matchesPattern("\\d{4}-\\d{2}-\\d{2}")))
                     .andExpect(jsonPath("$[0].username").isString());
         }
     }
@@ -135,6 +155,82 @@ public class PetControllerTest {
                     .andExpect(jsonPath("$.message").value("Pet not found with id 100"))
                     .andExpect(jsonPath("$.timestamp").exists());
 
+        }
+    }
+
+    @Nested
+    @DisplayName("Post /api/pets")
+    class CreatePetTests {
+        private User veterinaryUser;
+        private UserDetail veterinaryUserDetail;
+        private User regularUser;
+        private UserDetail regularUserDetail;
+        private Map<String, String> petRequest;
+        private Map<String, String> petRequestInvalid;
+
+        @BeforeEach
+        void setup() {
+            petRequest = Map.of(
+                    "name", "Trufa",
+                    "species", "Perro",
+                    "breed", "Caniche Toy",
+                    "birthDate", "2021-03-15",
+                    "image", "https://example.com/images/trufa.jpg",
+                    "username", "Debora"
+            );
+
+            petRequestInvalid = Map.of(
+                    "name", "Trufa",
+                    "species", "Perro",
+                    "breed", "Caniche Toy",
+                    "birthDate", "2021-03-15",
+                    "image", "https://example.com/images/trufa.jpg",
+                    "username", "No Existe"
+            );
+
+            veterinaryUser = User.builder()
+                    .id(99L)
+                    .username("VeterinaryTest")
+                    .role(Role.VETERINARY)
+                    .build();
+            veterinaryUserDetail = new UserDetail(veterinaryUser);
+
+            regularUser = User.builder()
+                    .id(55L)
+                    .username("NoVeterinaryTest")
+                    .role(Role.USER)
+                    .build();
+            regularUserDetail = new UserDetail(regularUser);
+        }
+
+        @Test
+        @DisplayName("Should create pet when user is veterinary and data is valid")
+        void createPet_returnsPet_whenVeterinaryAndValid() throws Exception {
+            performPostRequest("/api/pets", petRequest, veterinaryUserDetail)
+                    .andExpect(status().isCreated())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.name").value("Trufa"))
+                    .andExpect(jsonPath("$.species").value("Perro"))
+                    .andExpect(jsonPath("$.breed").value("Caniche Toy"))
+                    .andExpect(jsonPath("$.username").value("Debora"));
+        }
+
+        @Test
+        @DisplayName("Should return 404 when pet owner user does not exist")
+        void createPet_returnsNotFound_whenUsernameDoesNotExist() throws Exception {
+            performPostRequest("/api/pets", petRequestInvalid, veterinaryUserDetail)
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value("User not found with username No Existe"))
+                    .andExpect(jsonPath("$.timestamp").exists());
+        }
+
+        @Test
+        @DisplayName("Should return 401 when user is not a veterinary")
+        void createPet_returnsForbidden_whenUserIsNotVeterinary() throws Exception {
+            performPostRequest("/api/pets", petRequest, regularUserDetail)
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.message").value("Access Denied"))
+                    .andExpect(jsonPath("$.timestamp").exists());
         }
     }
 }
