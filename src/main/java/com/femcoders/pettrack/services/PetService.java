@@ -5,10 +5,12 @@ import com.femcoders.pettrack.dtos.pet.PetRequest;
 import com.femcoders.pettrack.dtos.pet.PetResponse;
 import com.femcoders.pettrack.exceptions.EntityNotFoundException;
 import com.femcoders.pettrack.models.Pet;
+import com.femcoders.pettrack.models.Role;
 import com.femcoders.pettrack.models.User;
 import com.femcoders.pettrack.repositories.PetRepository;
 import com.femcoders.pettrack.repositories.UserRepository;
 import com.femcoders.pettrack.security.UserDetail;
+import com.femcoders.pettrack.utils.RoleValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,15 +29,6 @@ public class PetService {
     private final PetRepository petRepository;
     private final PetMapper petMapper;
     private final UserRepository userRepository;
-
-    private void validateVeterinary(UserDetail userDetail) {
-        if (userDetail == null || userDetail.getUsername() == null) {
-            throw new IllegalArgumentException("User information is missing or invalid");
-        }
-        if (!userDetail.getRole().equals("VETERINARY")) {
-            throw new SecurityException("Only veterinaries can manage pets");
-        }
-    }
 
     public List<PetResponse> getAllPets() {
         List<Pet> pets = petRepository.findAll();
@@ -83,7 +76,7 @@ public class PetService {
 
     @Transactional
     public PetResponse createPet(PetRequest petRequest, UserDetail userDetail) {
-        validateVeterinary(userDetail);
+        RoleValidator.validateVeterinary(userDetail, "Only veterinaries can manage pets");
 
         User petOwner = userRepository.findByUsernameIgnoreCase(petRequest.username())
                 .orElseThrow(()->new NoSuchElementException("User not found with username " + petRequest.username()));
@@ -96,7 +89,7 @@ public class PetService {
 
     @Transactional
     public PetResponse updatePet(Long id, PetRequest petRequest, UserDetail userDetail) {
-        validateVeterinary(userDetail);
+        RoleValidator.validateVeterinary(userDetail, "Only veterinaries can manage pets");
 
         Pet petToUpdate = petRepository.findById(id)
                 .orElseThrow(()->new EntityNotFoundException(Pet.class.getSimpleName(), id));
@@ -118,7 +111,7 @@ public class PetService {
 
     @Transactional
     public Map<String, String> deletePet(Long id, UserDetail userDetail) {
-        validateVeterinary(userDetail);
+        RoleValidator.validateVeterinary(userDetail, "Only veterinaries can manage pets");
 
         Pet petToDelete = petRepository.findById(id)
                 .orElseThrow(()->new EntityNotFoundException(Pet.class.getSimpleName(), id));
