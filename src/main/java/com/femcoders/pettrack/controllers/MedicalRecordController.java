@@ -3,6 +3,7 @@ package com.femcoders.pettrack.controllers;
 import com.femcoders.pettrack.dtos.medicalRecord.MedicalRecordRequest;
 import com.femcoders.pettrack.dtos.medicalRecord.MedicalRecordResponse;
 import com.femcoders.pettrack.dtos.pet.PetRequest;
+import com.femcoders.pettrack.dtos.pet.PetResponse;
 import com.femcoders.pettrack.security.UserDetail;
 import com.femcoders.pettrack.services.MedicalRecordService;
 import jakarta.validation.Valid;
@@ -49,5 +50,13 @@ public class MedicalRecordController {
     ) {
         MedicalRecordResponse createdMedicalRecord = medicalRecordService.createMedicalRecord(medicalRecordRequest, userDetail);
         return new ResponseEntity<>(createdMedicalRecord, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MedicalRecordResponse> updateMedicalRecord(@PathVariable Long id,
+                                                 @RequestBody @Valid MedicalRecordRequest medicalRecordRequest,
+                                                 @AuthenticationPrincipal UserDetail userDetail) {
+        MedicalRecordResponse updatedMedicalRecord = medicalRecordService.updateMedicalRecord(id, medicalRecordRequest, userDetail);
+        return ResponseEntity.ok(updatedMedicalRecord);
     }
 }
