@@ -72,6 +72,13 @@ public class PetControllerTest {
                 .accept(MediaType.APPLICATION_JSON));
     }
 
+    private ResultActions performDeleteRequest(String url,UserDetail userDetail) throws Exception {
+        return mockMvc.perform(delete(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(user(userDetail))
+                .accept(MediaType.APPLICATION_JSON));
+    }
+
     @Nested
     @DisplayName("Get /api/pets")
     class getAllPetsTest {
@@ -315,6 +322,74 @@ public class PetControllerTest {
         @DisplayName("Should return 403 when user is not veterinary")
         void updatePet_forbiddenWhenIsNotVeterinary() throws Exception {
             performPutRequest("/api/pets/1", validRequest, regularUserDetail)
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.message").value("Access Denied"))
+                    .andExpect(jsonPath("$.timestamp").exists());
+        }
+    }
+
+    @Nested
+    @DisplayName("Delete /api/pets")
+    class DeletePetTests {
+        private UserDetail vetUserDetail;
+        private UserDetail regularUserDetail;
+        private Map<String, String> validRequest;
+        private Map<String, String> requestWithNonExistingUser;
+
+        @BeforeEach
+        void setup() {
+            vetUserDetail = new UserDetail(User.builder()
+                    .id(100L)
+                    .username("VeterinaryTest")
+                    .role(Role.VETERINARY)
+                    .build());
+
+            regularUserDetail = new UserDetail(User.builder()
+                    .id(101L)
+                    .username("RegularUser")
+                    .role(Role.USER)
+                    .build());
+
+            validRequest = Map.of(
+                    "name", "UpdatedName",
+                    "species", "Perro",
+                    "breed", "Labrador",
+                    "birthDate", "2020-01-01",
+                    "image", "https://example.com/updated.jpg",
+                    "username", "Debora"
+            );
+
+            requestWithNonExistingUser = Map.of(
+                    "name", "AnotherName",
+                    "species", "Perro",
+                    "breed", "Labrador",
+                    "birthDate", "2020-01-01",
+                    "image", "https://example.com/updated.jpg",
+                    "username", "NoExiste"
+            );
+        }
+
+        @Test
+        @DisplayName("Should delete pet when ID and username exist and role is veterinary")
+        void deletePet_successful() throws Exception {
+            performDeleteRequest("/api/pets/1", vetUserDetail)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.message").value("Pet 'Luna' with id:1 has been deleted successfully"));
+        }
+
+        @Test
+        @DisplayName("Should return 404 when pet does not exist")
+        void deletePet_returnsNotFoundWhenPetNotExist() throws Exception {
+            performDeleteRequest("/api/pets/1000", vetUserDetail)
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value("Pet not found with id 1000"))
+                    .andExpect(jsonPath("$.timestamp").exists());
+        }
+
+        @Test
+        @DisplayName("Should return 404 when is not veterinary")
+        void deletePet_returnsForbiddenWhenIsNotVeterinary() throws Exception {
+            performDeleteRequest("/api/pets/1", regularUserDetail)
                     .andExpect(status().isForbidden())
                     .andExpect(jsonPath("$.message").value("Access Denied"))
                     .andExpect(jsonPath("$.timestamp").exists());
