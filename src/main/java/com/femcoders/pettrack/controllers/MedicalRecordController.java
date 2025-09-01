@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,5 +59,12 @@ public class MedicalRecordController {
                                                  @AuthenticationPrincipal UserDetail userDetail) {
         MedicalRecordResponse updatedMedicalRecord = medicalRecordService.updateMedicalRecord(id, medicalRecordRequest, userDetail);
         return ResponseEntity.ok(updatedMedicalRecord);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> deleteMedicalRecord(@PathVariable Long id,
+                                                         @AuthenticationPrincipal UserDetail userDetail) {
+        Map<String, String> response = medicalRecordService.deleteMedicalRecord(id, userDetail);
+        return ResponseEntity.ok(response);
     }
 }

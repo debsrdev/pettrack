@@ -10,10 +10,12 @@ import com.femcoders.pettrack.repositories.PetRepository;
 import com.femcoders.pettrack.repositories.UserRepository;
 import com.femcoders.pettrack.security.UserDetail;
 import com.femcoders.pettrack.utils.RoleValidator;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Service
@@ -24,7 +26,6 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     private final PetRepository petRepository;
     private final UserRepository userRepository;
 
-    @Override
     public List<MedicalRecordResponse> getAllMedicalRecords(UserDetail userDetail) {
         List<MedicalRecord> medicalRecords = medicalRecordRepository.findByPet_User_Id(userDetail.getId());
 
@@ -37,7 +38,6 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
                 .toList();
     }
 
-    @Override
     public MedicalRecordResponse getMedicalRecordById(Long id, UserDetail userDetail) {
         MedicalRecord medicalRecord = medicalRecordRepository.findById(id)
                 .orElseThrow(()->new EntityNotFoundException(MedicalRecord.class.getSimpleName(), id));
@@ -56,7 +56,6 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         return medicalRecordMapper.entityToDto(medicalRecord);
     }
 
-    @Override
     public List<MedicalRecordResponse> getMedicalRecordsByPetName(String petName, UserDetail userDetail) {
         List<MedicalRecord> medicalRecords = medicalRecordRepository.findByPetNameIgnoreCase(petName);
 
@@ -74,7 +73,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
                 .toList();
     }
 
-    @Override
+    @Transactional
     public MedicalRecordResponse createMedicalRecord(MedicalRecordRequest medicalRecordRequest, UserDetail userDetail) {
         RoleValidator.validateVeterinary(userDetail, "Only veterinaries can manage medical records");
 
@@ -90,7 +89,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         return medicalRecordMapper.entityToDto(medicalRecordSaved);
     }
 
-    @Override
+    @Transactional
     public MedicalRecordResponse updateMedicalRecord(Long id, MedicalRecordRequest medicalRecordRequest, UserDetail userDetail) {
         RoleValidator.validateVeterinary(userDetail, "Only veterinaries can manage medical records");
 
@@ -110,4 +109,17 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         medicalRecordRepository.save(medicalRecordToUpdate);
         return medicalRecordMapper.entityToDto(medicalRecordToUpdate);
     }
+
+        @Transactional
+        public Map<String, String> deleteMedicalRecord(Long id, UserDetail userDetail) {
+            RoleValidator.validateVeterinary(userDetail, "Only veterinaries can manage medical records");
+
+            MedicalRecord medicalRecordToDelete = medicalRecordRepository.findById(id)
+                    .orElseThrow(()->new EntityNotFoundException(MedicalRecord.class.getSimpleName(), id));
+
+            medicalRecordRepository.delete(medicalRecordToDelete);
+
+            String messsage = "Medical record with id: " + medicalRecordToDelete.getId() + " from pet " + medicalRecordToDelete.getPet().getName() + " has been deleted successfully";
+            return Map.of("message", messsage);
+        }
 }
