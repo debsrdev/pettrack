@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -87,5 +88,26 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         MedicalRecord medicalRecordSaved = medicalRecordRepository.save(medicalRecord);
 
         return medicalRecordMapper.entityToDto(medicalRecordSaved);
+    }
+
+    @Override
+    public MedicalRecordResponse updateMedicalRecord(Long id, MedicalRecordRequest medicalRecordRequest, UserDetail userDetail) {
+        RoleValidator.validateVeterinary(userDetail, "Only veterinaries can manage medical records");
+
+        MedicalRecord medicalRecordToUpdate = medicalRecordRepository.findById(id)
+                .orElseThrow(() ->new EntityNotFoundException(MedicalRecord.class.getSimpleName(), id));
+
+        medicalRecordToUpdate.setDescription(medicalRecordRequest.description());
+        medicalRecordToUpdate.setWeight(medicalRecordRequest.weight());
+        medicalRecordToUpdate.setDate(medicalRecordRequest.date());
+        medicalRecordToUpdate.setType(medicalRecordRequest.type());
+
+        Pet newPet = petRepository.findById(medicalRecordRequest.petId())
+                .orElseThrow(()->new NoSuchElementException("Pet not found with id " + medicalRecordRequest.petId()));
+
+        medicalRecordToUpdate.setPet(newPet);
+
+        medicalRecordRepository.save(medicalRecordToUpdate);
+        return medicalRecordMapper.entityToDto(medicalRecordToUpdate);
     }
 }

@@ -13,4 +13,5 @@ public interface MedicalRecordService {
     MedicalRecordResponse getMedicalRecordById(Long id, UserDetail userDetail);
     List<MedicalRecordResponse> getMedicalRecordsByPetName(String petName, UserDetail userDetail);
     MedicalRecordResponse createMedicalRecord(MedicalRecordRequest medicalRecordRequest, UserDetail userDetail);
+    MedicalRecordResponse updateMedicalRecord(Long id, MedicalRecordRequest medicalRecordRequest, UserDetail userDetail);
 }
