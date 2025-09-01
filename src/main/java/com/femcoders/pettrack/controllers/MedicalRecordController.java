@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,5 +23,13 @@ public class MedicalRecordController {
     public ResponseEntity<List<MedicalRecordResponse>> getAllMedicalRecords(@AuthenticationPrincipal UserDetail userDetail) {
         List<MedicalRecordResponse> medicalRecords = medicalRecordService.GetAllMedicalRecords(userDetail);
         return ResponseEntity.ok(medicalRecords);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MedicalRecordResponse> getMedicalRecordById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetail userDetail) {
+        MedicalRecordResponse medicalRecord = medicalRecordService.GetMedicalRecordById(id, userDetail);
+        return ResponseEntity.ok(medicalRecord);
     }
 }
