@@ -3,6 +3,7 @@ package com.femcoders.pettrack.services;
 import com.femcoders.pettrack.dtos.pet.PetMapper;
 import com.femcoders.pettrack.dtos.pet.PetRequest;
 import com.femcoders.pettrack.dtos.pet.PetResponse;
+import com.femcoders.pettrack.exceptions.EntityNotFoundException;
 import com.femcoders.pettrack.models.Pet;
 import com.femcoders.pettrack.models.Role;
 import com.femcoders.pettrack.models.User;
@@ -55,6 +56,8 @@ public class PetServiceTest {
     private Pet petNew;
     private PetRequest petRequestNew;
     private PetResponse petResponseNew;
+    private PetRequest updatedPetRequest;
+    private PetRequest updatedPetRequestUsernameInvalid;
     private User user;
     private UserDetail userVeterinary;
 
@@ -143,6 +146,24 @@ public class PetServiceTest {
                 LocalDate.parse("2021-03-15"),
                 "https://example.com/images/trufa.jpg",
                 "Debora"
+        );
+
+        updatedPetRequest = new PetRequest(
+                "Luna",
+                "Perro",
+                "Golden Retriever",
+                LocalDate.parse("2021-03-15"),
+                "https://example.com/images/luna.jpg",
+                "Debora"
+        );
+
+        updatedPetRequestUsernameInvalid = new PetRequest(
+                "Luna",
+                "Perro",
+                "Golden Retriever",
+                LocalDate.parse("2021-03-15"),
+                "https://example.com/images/luna.jpg",
+                "Nombre de usuario"
         );
     }
 
@@ -395,5 +416,57 @@ public class PetServiceTest {
             verify(userRepository).findByUsernameIgnoreCase("Nombre de usuario");
         }
 
+    }
+
+    @Nested
+    @DisplayName("updatePet")
+    class updatePetTests {
+        @Test
+        @DisplayName("Should update a pet when veterinary is authenticated and data is valid")
+        void shouldUpdatePetSuccessfully() {
+            given(petRepository.findById(1L)).willReturn(Optional.of(pet1));
+            given(userRepository.findByUsernameIgnoreCase("Debora")).willReturn(Optional.of(user));
+            given(petMapper.entityToDto(pet1)).willReturn(petResponse1);
+
+            PetResponse petResponse = petService.updatePet(1L, updatedPetRequest, userVeterinary);
+
+            assertThat(petResponse.name()).isEqualTo("Luna");
+            assertThat(petResponse.species()).isEqualTo("Perro");
+            assertThat(petResponse.username()).isEqualTo("Debora");
+
+            verify(petRepository).findById(1L);
+            verify(userRepository).findByUsernameIgnoreCase("Debora");
+            verify(petMapper).entityToDto(pet1);
+        }
+        @Test
+        @DisplayName("Should throw exception when petId does not exist")
+        void shouldThrowExceptionWhenPetIdDoesNotExist() {
+            given(petRepository.findById(999L)).willReturn(Optional.empty());
+
+            Throwable throwable = catchThrowable(()->
+                    petService.updatePet(999L, updatedPetRequest, userVeterinary));
+
+            assertThat(throwable)
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessage("Pet not found with id 999");
+
+            verify(petRepository).findById(999L);
+        }
+        @Test
+        @DisplayName("Should throw exception when username does not exist")
+        void shouldThrowExceptionWhenUsernameDoesNotExist() {
+            given(petRepository.findById(1L)).willReturn(Optional.of(pet1));
+            given(userRepository.findByUsernameIgnoreCase("Nombre de usuario")).willReturn(Optional.empty());
+
+            Throwable throwable = catchThrowable(()->
+                    petService.updatePet(1L, updatedPetRequestUsernameInvalid, userVeterinary));
+
+            assertThat(throwable)
+                    .isInstanceOf(NoSuchElementException.class)
+                    .hasMessage("User not found with username Nombre de usuario");
+
+            verify(petRepository).findById(1L);
+            verify(userRepository).findByUsernameIgnoreCase("Nombre de usuario");
+        }
     }
 }
