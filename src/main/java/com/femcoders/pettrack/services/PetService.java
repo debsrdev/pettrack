@@ -33,7 +33,7 @@ public class PetService {
             throw new IllegalArgumentException("User information is missing or invalid");
         }
         if (!userDetail.getRole().equals("VETERINARY")) {
-            throw new SecurityException("Only veterinaries can create new pets");
+            throw new SecurityException("Only veterinaries can manage pets");
         }
     }
 

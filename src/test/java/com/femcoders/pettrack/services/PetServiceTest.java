@@ -28,6 +28,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -60,6 +61,7 @@ public class PetServiceTest {
     private PetRequest updatedPetRequestUsernameInvalid;
     private User user;
     private UserDetail userVeterinary;
+    private UserDetail userRegular;
 
     @BeforeEach
     void setup() {
@@ -73,6 +75,14 @@ public class PetServiceTest {
                         .id(4L)
                         .username("Carmen")
                         .role(Role.VETERINARY)
+                        .build()
+        );
+
+        userRegular = new UserDetail(
+                User.builder()
+                        .id(20L)
+                        .username("User test")
+                        .role(Role.USER)
                         .build()
         );
 
@@ -393,6 +403,7 @@ public class PetServiceTest {
             verify(petRepository).save(petNew);
             verify(petMapper).entityToDto(petNew);
         }
+
         @Test
         @DisplayName("Should throw an exception when a pet owner username is not found")
         void shouldThrowExceptionWhenUsernameIsNotFound() {
@@ -415,7 +426,6 @@ public class PetServiceTest {
 
             verify(userRepository).findByUsernameIgnoreCase("Nombre de usuario");
         }
-
     }
 
     @Nested
@@ -438,6 +448,7 @@ public class PetServiceTest {
             verify(userRepository).findByUsernameIgnoreCase("Debora");
             verify(petMapper).entityToDto(pet1);
         }
+
         @Test
         @DisplayName("Should throw exception when petId does not exist")
         void shouldThrowExceptionWhenPetIdDoesNotExist() {
@@ -452,6 +463,7 @@ public class PetServiceTest {
 
             verify(petRepository).findById(999L);
         }
+
         @Test
         @DisplayName("Should throw exception when username does not exist")
         void shouldThrowExceptionWhenUsernameDoesNotExist() {
@@ -467,6 +479,44 @@ public class PetServiceTest {
 
             verify(petRepository).findById(1L);
             verify(userRepository).findByUsernameIgnoreCase("Nombre de usuario");
+        }
+    }
+
+    @Nested
+    @DisplayName("deletePet")
+    class deletePetTests {
+        @Test
+        @DisplayName("Should delete pet when user is veterinary and pet exists")
+        void shouldDeletePetWhenVeterinaryAndPetExists() {
+            given(petRepository.findById(1L)).willReturn(Optional.of(pet1));
+
+            Map<String, String> result = petService.deletePet(1L, userVeterinary);
+
+            assertThat(result.get("message")).isEqualTo("Pet 'Luna' with id:1 has been deleted successfully");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when petId does not exist")
+        void shouldThrowExceptionWhenPetIdDoesNotExist() {
+            given(petRepository.findById(999L)).willReturn(Optional.empty());
+
+            Throwable throwable = catchThrowable(()->
+                    petService.deletePet(999L, userVeterinary));
+
+            assertThat(throwable)
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessage("Pet not found with id 999");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when user is not veterinary")
+        void shouldThrowExceptionWhenUserIsNotVeterinary() {
+            Throwable throwable = catchThrowable(()->
+                    petService.deletePet(1L, userRegular));
+
+            assertThat(throwable)
+                    .isInstanceOf(SecurityException.class)
+                    .hasMessage("Only veterinaries can manage pets");
         }
     }
 }
