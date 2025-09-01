@@ -1,6 +1,6 @@
 INSERT INTO users(id, username, email, password, role) VALUES
 (1, 'Debora', 'debora@user.com', '$2a$12$xuHYlMnpjp5VbIcxcEZFveIWU7DTVK2ufFRCrd7Or0AfeAWASK3gi', 'USER'),
-(2, 'Roberto', 'roberto@user.com', 'Roberto123.', 'USER'),
+(2, 'Roberto', 'roberto@user.com', '$2a$12$hFLwjK.NusSmPFxVwQ7ZquKCb2DSshmAXICn8WgcJ.grZ6PCeMkhm', 'USER'),
 (3, 'Jenni', 'jenni@user.com', 'Jenni123.', 'USER'),
 (4, 'Carmen', 'carmen@vet.com', '$2a$12$aXrRPOIJ.vQ3wPN5/6JE0uED39Ez2jf7D9poXGNTN9nufxsI.M2Ii', 'VETERINARY'),
 (5, 'Maribel', 'maribel@vet.com', 'Maribel123.', 'VETERINARY');
