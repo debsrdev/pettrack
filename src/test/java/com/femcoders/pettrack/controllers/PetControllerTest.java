@@ -64,6 +64,14 @@ public class PetControllerTest {
                 .accept(MediaType.APPLICATION_JSON));
     }
 
+    private ResultActions performPutRequest(String url, Object body, UserDetail userDetail) throws Exception {
+        return mockMvc.perform(put(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(body))
+                .with(user(userDetail))
+                .accept(MediaType.APPLICATION_JSON));
+    }
+
     @Nested
     @DisplayName("Get /api/pets")
     class getAllPetsTest {
@@ -228,6 +236,85 @@ public class PetControllerTest {
         @DisplayName("Should return 401 when user is not a veterinary")
         void createPet_returnsForbidden_whenUserIsNotVeterinary() throws Exception {
             performPostRequest("/api/pets", petRequest, regularUserDetail)
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.message").value("Access Denied"))
+                    .andExpect(jsonPath("$.timestamp").exists());
+        }
+    }
+
+    @Nested
+    @DisplayName("Put /api/pets")
+    class UpdatePetTests {
+        private UserDetail vetUserDetail;
+        private UserDetail regularUserDetail;
+        private Map<String, String> validRequest;
+        private Map<String, String> requestWithNonExistingUser;
+
+        @BeforeEach
+        void setup() {
+            vetUserDetail = new UserDetail(User.builder()
+                    .id(100L)
+                    .username("VeterinaryTest")
+                    .role(Role.VETERINARY)
+                    .build());
+
+            regularUserDetail = new UserDetail(User.builder()
+                    .id(101L)
+                    .username("RegularUser")
+                    .role(Role.USER)
+                    .build());
+
+            validRequest = Map.of(
+                    "name", "UpdatedName",
+                    "species", "Perro",
+                    "breed", "Labrador",
+                    "birthDate", "2020-01-01",
+                    "image", "https://example.com/updated.jpg",
+                    "username", "Debora"
+            );
+
+            requestWithNonExistingUser = Map.of(
+                    "name", "AnotherName",
+                    "species", "Perro",
+                    "breed", "Labrador",
+                    "birthDate", "2020-01-01",
+                    "image", "https://example.com/updated.jpg",
+                    "username", "NoExiste"
+            );
+        }
+
+        @Test
+        @DisplayName("Should update pet when ID and username exist and role is veterinary")
+        void updatePet_successful() throws Exception {
+            performPutRequest("/api/pets/1", validRequest, vetUserDetail)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name").value("UpdatedName"))
+                    .andExpect(jsonPath("$.species").value("Perro"))
+                    .andExpect(jsonPath("$.username").value("Debora"));
+        }
+
+        @Test
+        @DisplayName("Should return 404 when petId does not exist")
+        void updatePet_petIdNotFound() throws Exception {
+            performPutRequest("/api/pets/999", validRequest, vetUserDetail)
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value("Pet not found with id 999"))
+                    .andExpect(jsonPath("$.timestamp").exists());
+        }
+
+        @Test
+        @DisplayName("Should return 404 when username does not exist")
+        void updatePet_usernameNotFound() throws Exception {
+            performPutRequest("/api/pets/1", requestWithNonExistingUser, vetUserDetail)
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value("User not found with username NoExiste"))
+                    .andExpect(jsonPath("$.timestamp").exists());
+        }
+
+        @Test
+        @DisplayName("Should return 403 when user is not veterinary")
+        void updatePet_forbiddenWhenIsNotVeterinary() throws Exception {
+            performPutRequest("/api/pets/1", validRequest, regularUserDetail)
                     .andExpect(status().isForbidden())
                     .andExpect(jsonPath("$.message").value("Access Denied"))
                     .andExpect(jsonPath("$.timestamp").exists());
