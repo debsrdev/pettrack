@@ -1,8 +1,10 @@
 package com.femcoders.pettrack.services;
 
+import com.femcoders.pettrack.dtos.medicalRecord.MedicalRecordResponse;
 import com.femcoders.pettrack.dtos.user.UserMapper;
 import com.femcoders.pettrack.dtos.user.UserRequest;
 import com.femcoders.pettrack.dtos.user.UserResponse;
+import com.femcoders.pettrack.dtos.user.UserUpdateRequest;
 import com.femcoders.pettrack.exceptions.EntityNotFoundException;
 import com.femcoders.pettrack.models.Role;
 import com.femcoders.pettrack.models.User;
@@ -94,4 +96,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         return userMapper.entityToDto(user);
     }
+
+    @Transactional
+    public UserResponse updateUser(Long id, UserUpdateRequest userUpdateRequest, UserDetail userDetail){
+        RoleValidator.validateVeterinary(userDetail, "Only veterinarians can edit users");
+
+        User user = userRepository.findById(id)
+                .orElseThrow(()->new EntityNotFoundException(User.class.getSimpleName(), id));
+
+        user.setUsername(userUpdateRequest.username());
+        user.setEmail(userUpdateRequest.email());
+        user.setPassword(bCryptPasswordEncoder.encode(userUpdateRequest.password()));
+        user.setRole(userUpdateRequest.role() != null ? userUpdateRequest.role() : Role.USER);
+
+        userRepository.save(user);
+        return userMapper.entityToDto(user);
+    }
+
 }
