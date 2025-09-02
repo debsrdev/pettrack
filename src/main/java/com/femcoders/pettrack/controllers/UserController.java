@@ -1,16 +1,16 @@
 package com.femcoders.pettrack.controllers;
 
 import com.femcoders.pettrack.dtos.medicalRecord.MedicalRecordResponse;
+import com.femcoders.pettrack.dtos.user.UserRequest;
 import com.femcoders.pettrack.dtos.user.UserResponse;
 import com.femcoders.pettrack.security.UserDetail;
 import com.femcoders.pettrack.services.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,5 +32,13 @@ public class UserController {
             @AuthenticationPrincipal UserDetail userDetail) {
         UserResponse userResponse = userService.getUserById(id, userDetail);
         return ResponseEntity.ok(userResponse);
+    }
+
+    @PostMapping()
+    public ResponseEntity<UserResponse> createUser(
+            @RequestBody @Valid UserRequest userRequest,
+            @AuthenticationPrincipal UserDetail userDetail) {
+        UserResponse userResponse = userService.createUser(userRequest, userDetail);
+        return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
     }
 }

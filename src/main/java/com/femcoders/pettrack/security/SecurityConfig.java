@@ -36,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/users").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/pets").hasRole("VETERINARY")
                         .requestMatchers(HttpMethod.POST, "/api/medical-records").hasRole("VETERINARY")
+                        .requestMatchers(HttpMethod.POST, "/api/users").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/pets/{id}").hasRole("VETERINARY")
                         .requestMatchers(HttpMethod.PUT, "/api/users/{id}").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/medical-records/{id}").hasRole("VETERINARY")

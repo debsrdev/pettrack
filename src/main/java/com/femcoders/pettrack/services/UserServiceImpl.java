@@ -75,4 +75,23 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         throw new SecurityException("You do not have permission to view this user");
     }
+
+    public UserResponse createUser(UserRequest userRequest, UserDetail userDetail){
+        RoleValidator.validateVeterinary(userDetail, "Only veterinarians can create users");
+
+        if (userRepository.existsByUsername(userRequest.username())) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+
+        if (userRepository.existsByEmail(userRequest.email())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+
+        User user = userMapper.dtoToEntity(userRequest, Role.USER);
+        user.setPassword(bCryptPasswordEncoder.encode(userRequest.password()));
+
+        userRepository.save(user);
+
+        return userMapper.entityToDto(user);
+    }
 }
