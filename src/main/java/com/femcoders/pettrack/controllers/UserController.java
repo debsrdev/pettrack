@@ -2,9 +2,11 @@ package com.femcoders.pettrack.controllers;
 
 import com.femcoders.pettrack.dtos.medicalRecord.MedicalRecordRequest;
 import com.femcoders.pettrack.dtos.medicalRecord.MedicalRecordResponse;
+import com.femcoders.pettrack.dtos.pet.PetResponse;
 import com.femcoders.pettrack.dtos.user.UserRequest;
 import com.femcoders.pettrack.dtos.user.UserResponse;
 import com.femcoders.pettrack.dtos.user.UserUpdateRequest;
+import com.femcoders.pettrack.models.Role;
 import com.femcoders.pettrack.models.User;
 import com.femcoders.pettrack.security.UserDetail;
 import com.femcoders.pettrack.services.UserService;
@@ -36,6 +38,15 @@ public class UserController {
             @AuthenticationPrincipal UserDetail userDetail) {
         UserResponse userResponse = userService.getUserById(id, userDetail);
         return ResponseEntity.ok(userResponse);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<UserResponse>> getFilterUserByRole(
+            @RequestParam(required = false) Role role,
+            @AuthenticationPrincipal UserDetail userDetail
+    ) {
+        List<UserResponse> filteredUsers = userService.getFilterUserByRole(role, userDetail);
+        return ResponseEntity.ok(filteredUsers);
     }
 
     @PostMapping()

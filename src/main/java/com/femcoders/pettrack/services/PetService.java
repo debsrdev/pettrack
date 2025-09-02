@@ -5,7 +5,6 @@ import com.femcoders.pettrack.dtos.pet.PetRequest;
 import com.femcoders.pettrack.dtos.pet.PetResponse;
 import com.femcoders.pettrack.exceptions.EntityNotFoundException;
 import com.femcoders.pettrack.models.Pet;
-import com.femcoders.pettrack.models.Role;
 import com.femcoders.pettrack.models.User;
 import com.femcoders.pettrack.repositories.PetRepository;
 import com.femcoders.pettrack.repositories.UserRepository;
