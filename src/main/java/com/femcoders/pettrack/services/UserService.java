@@ -1,7 +1,5 @@
 package com.femcoders.pettrack.services;
 
-import com.femcoders.pettrack.dtos.medicalRecord.MedicalRecordRequest;
-import com.femcoders.pettrack.dtos.medicalRecord.MedicalRecordResponse;
 import com.femcoders.pettrack.dtos.user.UserRequest;
 import com.femcoders.pettrack.dtos.user.UserResponse;
 import com.femcoders.pettrack.dtos.user.UserUpdateRequest;
