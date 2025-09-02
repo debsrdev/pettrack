@@ -420,8 +420,8 @@ public class PetServiceTest {
             Throwable throwable = catchThrowable(()->petService.createPet(petRequestException, userVeterinary));
 
             assertThat(throwable)
-                    .isInstanceOf(NoSuchElementException.class)
-                    .hasMessage("User not found with username Nombre de usuario");
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessage("User not found with username: Nombre de usuario");
 
             verify(userRepository).findByUsernameIgnoreCase("Nombre de usuario");
         }
@@ -473,8 +473,8 @@ public class PetServiceTest {
                     petService.updatePet(1L, updatedPetRequestUsernameInvalid, userVeterinary));
 
             assertThat(throwable)
-                    .isInstanceOf(NoSuchElementException.class)
-                    .hasMessage("User not found with username Nombre de usuario");
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessage("User not found with username: Nombre de usuario");
 
             verify(petRepository).findById(1L);
             verify(userRepository).findByUsernameIgnoreCase("Nombre de usuario");

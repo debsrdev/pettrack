@@ -235,7 +235,7 @@ public class PetControllerTest {
         void createPet_returnsNotFound_whenUsernameDoesNotExist() throws Exception {
             performPostRequest("/api/pets", petRequestInvalid, veterinaryUserDetail)
                     .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.message").value("User not found with username No Existe"))
+                    .andExpect(jsonPath("$.message").value("User not found with username: No Existe"))
                     .andExpect(jsonPath("$.timestamp").exists());
         }
 
@@ -244,7 +244,7 @@ public class PetControllerTest {
         void createPet_returnsForbidden_whenUserIsNotVeterinary() throws Exception {
             performPostRequest("/api/pets", petRequest, regularUserDetail)
                     .andExpect(status().isForbidden())
-                    .andExpect(jsonPath("$.message").value("Access Denied"))
+                    .andExpect(jsonPath("$.message").value("Only veterinaries can manage pets"))
                     .andExpect(jsonPath("$.timestamp").exists());
         }
     }
@@ -314,7 +314,7 @@ public class PetControllerTest {
         void updatePet_usernameNotFound() throws Exception {
             performPutRequest("/api/pets/1", requestWithNonExistingUser, vetUserDetail)
                     .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.message").value("User not found with username NoExiste"))
+                    .andExpect(jsonPath("$.message").value("User not found with username: NoExiste"))
                     .andExpect(jsonPath("$.timestamp").exists());
         }
 
@@ -323,7 +323,7 @@ public class PetControllerTest {
         void updatePet_forbiddenWhenIsNotVeterinary() throws Exception {
             performPutRequest("/api/pets/1", validRequest, regularUserDetail)
                     .andExpect(status().isForbidden())
-                    .andExpect(jsonPath("$.message").value("Access Denied"))
+                    .andExpect(jsonPath("$.message").value("Only veterinaries can manage pets"))
                     .andExpect(jsonPath("$.timestamp").exists());
         }
     }
@@ -391,7 +391,7 @@ public class PetControllerTest {
         void deletePet_returnsForbiddenWhenIsNotVeterinary() throws Exception {
             performDeleteRequest("/api/pets/1", regularUserDetail)
                     .andExpect(status().isForbidden())
-                    .andExpect(jsonPath("$.message").value("Access Denied"))
+                    .andExpect(jsonPath("$.message").value("Only veterinaries can manage pets"))
                     .andExpect(jsonPath("$.timestamp").exists());
         }
     }
