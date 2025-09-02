@@ -6,7 +6,7 @@ import com.femcoders.pettrack.dtos.user.UserRequest;
 import com.femcoders.pettrack.dtos.user.UserResponse;
 import com.femcoders.pettrack.security.UserDetail;
 import com.femcoders.pettrack.security.jwt.JwtService;
-import com.femcoders.pettrack.services.UserService;
+import com.femcoders.pettrack.services.UserServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
@@ -39,7 +39,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRequest request){
-        UserResponse response = userService.registerUser(request);
+        UserResponse response = userServiceImpl.registerUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/medical-records/pet/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/users").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/pets").hasRole("VETERINARY")
                         .requestMatchers(HttpMethod.POST, "/api/medical-records").hasRole("VETERINARY")
                         .requestMatchers(HttpMethod.PUT, "/api/pets/{id}").hasRole("VETERINARY")
