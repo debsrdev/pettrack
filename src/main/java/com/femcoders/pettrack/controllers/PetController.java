@@ -3,7 +3,7 @@ package com.femcoders.pettrack.controllers;
 import com.femcoders.pettrack.dtos.pet.PetRequest;
 import com.femcoders.pettrack.dtos.pet.PetResponse;
 import com.femcoders.pettrack.security.UserDetail;
-import com.femcoders.pettrack.services.PetService;
+import com.femcoders.pettrack.services.PetServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/pets")
 public class PetController {
-    private final PetService petService;
+    private final PetServiceImpl petService;
 
     @GetMapping
     public ResponseEntity<List<PetResponse>> getAllPets() {

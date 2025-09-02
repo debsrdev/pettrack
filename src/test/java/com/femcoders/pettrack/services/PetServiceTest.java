@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
@@ -48,7 +47,7 @@ public class PetServiceTest {
     UserRepository userRepository;
 
     @InjectMocks
-    PetService petService;
+    PetServiceImpl petService;
 
     private Pet pet1;
     private Pet pet2;
