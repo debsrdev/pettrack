@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -78,6 +79,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         throw new SecurityException("You do not have permission to view this user");
     }
 
+    @Transactional
     public UserResponse createUser(UserRequest userRequest, UserDetail userDetail){
         RoleValidator.validateVeterinary(userDetail, "Only veterinarians can create users");
 
@@ -113,4 +115,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userMapper.entityToDto(user);
     }
 
+    @Transactional
+    public Map<String, String> deleteUser(Long id, UserDetail userDetail){
+        RoleValidator.validateVeterinary(userDetail, "Only veterinarians can delete users");
+
+        User userToDelete = userRepository.findById(id)
+                .orElseThrow(()-> new EntityNotFoundException(User.class.getSimpleName(), id));
+
+        userRepository.delete(userToDelete);
+
+        String message = "User with id: " + userToDelete.getId() + " has been deleted successfully";
+        return Map.of("message", message);
+    }
 }
