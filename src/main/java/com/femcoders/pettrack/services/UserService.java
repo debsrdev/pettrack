@@ -10,4 +10,5 @@ public interface UserService {
     UserDetail loadUserByUsername(String identifier);
     UserResponse registerUser(UserRequest userRequestDTO);
     List<UserResponse> getAllUsers(UserDetail userDetail);
+    UserResponse getUserById(Long id, UserDetail userDetail);
 }
