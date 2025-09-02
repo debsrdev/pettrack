@@ -59,12 +59,16 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     public List<MedicalRecordResponse> getMedicalRecordsByPetName(String petName, UserDetail userDetail) {
         List<MedicalRecord> medicalRecords = medicalRecordRepository.findByPetNameIgnoreCase(petName);
 
+        if (medicalRecords.isEmpty()) {
+            throw new EntityNotFoundException("Pet", "name '" + petName + "'");
+        }
+
         if (RoleValidator.isVeterinary(userDetail)) {
             return medicalRecords.stream()
                     .map(medicalRecord -> medicalRecordMapper.entityToDto(medicalRecord))
                     .toList();
         }
-        if (medicalRecords.isEmpty() || !medicalRecords.getFirst().getPet().getUser().getId().equals(userDetail.getId())) {
+        if (!medicalRecords.getFirst().getPet().getUser().getId().equals(userDetail.getId())) {
             throw new SecurityException("You do not have permission to view this medical record");
         }
 
