@@ -60,4 +60,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .map(user->userMapper.entityToDto(user))
                 .toList();
     }
+
+    public UserResponse getUserById(Long userId, UserDetail userDetail) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(()->new EntityNotFoundException(User.class.getSimpleName(), userId));
+
+        if (RoleValidator.isVeterinary(userDetail)) {
+            return userMapper.entityToDto(user);
+        }
+
+        if (userDetail.getId().equals(userId)) {
+            return userMapper.entityToDto(user);
+        }
+
+        throw new SecurityException("You do not have permission to view this user");
+    }
 }
