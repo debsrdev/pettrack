@@ -43,6 +43,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/pets/{id}").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/medical-records/{id}").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").authenticated()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions
