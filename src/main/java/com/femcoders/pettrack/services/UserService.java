@@ -8,6 +8,7 @@ import com.femcoders.pettrack.dtos.user.UserUpdateRequest;
 import com.femcoders.pettrack.security.UserDetail;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
     UserDetail loadUserByUsername(String identifier);
@@ -16,5 +17,5 @@ public interface UserService {
     UserResponse getUserById(Long id, UserDetail userDetail);
     UserResponse createUser(UserRequest userRequest, UserDetail userDetail);
     UserResponse updateUser(Long id, UserUpdateRequest userUpdateRequest, UserDetail userDetail);
-
+    Map<String, String> deleteUser(Long id, UserDetail userDetail);
 }
