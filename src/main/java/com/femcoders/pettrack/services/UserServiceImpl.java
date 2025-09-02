@@ -1,6 +1,5 @@
 package com.femcoders.pettrack.services;
 
-import com.femcoders.pettrack.dtos.medicalRecord.MedicalRecordResponse;
 import com.femcoders.pettrack.dtos.user.UserMapper;
 import com.femcoders.pettrack.dtos.user.UserRequest;
 import com.femcoders.pettrack.dtos.user.UserResponse;
@@ -17,8 +16,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import jakarta.persistence.criteria.Predicate;
 
 @Service
 @RequiredArgsConstructor
@@ -77,6 +79,25 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         throw new SecurityException("You do not have permission to view this user");
+    }
+
+    public List<UserResponse> getFilterUserByRole(Role role, UserDetail userDetail) {
+        RoleValidator.validateVeterinary(userDetail, "Only veterinarians can filter users");
+
+        List<User> users = userRepository.findAll(
+                (root, query, cb) -> {
+                    List<Predicate> predicates = new ArrayList<>();
+
+                    boolean hasRole = role != null;
+
+                    if (hasRole) {
+                        predicates.add(cb.equal(root.get("role"), role));
+                    }
+                    return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+                });
+        return users.stream()
+                .map(user -> userMapper.entityToDto(user))
+                .toList();
     }
 
     @Transactional
