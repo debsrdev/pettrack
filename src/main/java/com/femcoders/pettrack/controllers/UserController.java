@@ -1,8 +1,11 @@
 package com.femcoders.pettrack.controllers;
 
+import com.femcoders.pettrack.dtos.medicalRecord.MedicalRecordRequest;
 import com.femcoders.pettrack.dtos.medicalRecord.MedicalRecordResponse;
 import com.femcoders.pettrack.dtos.user.UserRequest;
 import com.femcoders.pettrack.dtos.user.UserResponse;
+import com.femcoders.pettrack.dtos.user.UserUpdateRequest;
+import com.femcoders.pettrack.models.User;
 import com.femcoders.pettrack.security.UserDetail;
 import com.femcoders.pettrack.services.UserService;
 import jakarta.validation.Valid;
@@ -40,5 +43,13 @@ public class UserController {
             @AuthenticationPrincipal UserDetail userDetail) {
         UserResponse userResponse = userService.createUser(userRequest, userDetail);
         return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateMedicalRecord(@PathVariable Long id,
+                                                                     @RequestBody @Valid UserUpdateRequest userUpdateRequest,
+                                                                     @AuthenticationPrincipal UserDetail userDetail) {
+        UserResponse updatedUser = userService.updateUser(id, userUpdateRequest, userDetail);
+        return ResponseEntity.ok(updatedUser);
     }
 }
