@@ -1,9 +1,9 @@
 INSERT INTO users(id, username, email, password, role) VALUES
 (1, 'Debora', 'debora@user.com', '$2a$12$xuHYlMnpjp5VbIcxcEZFveIWU7DTVK2ufFRCrd7Or0AfeAWASK3gi', 'USER'),
 (2, 'Roberto', 'roberto@user.com', '$2a$12$hFLwjK.NusSmPFxVwQ7ZquKCb2DSshmAXICn8WgcJ.grZ6PCeMkhm', 'USER'),
-(3, 'Jenni', 'jenni@user.com', 'Jenni123.', 'USER'),
+(3, 'Jenni', 'jenni@user.com', '$2a$12$Hr3oBoEbCmOaQikiUrcBlOhlibxgcjQ45F7Z/isjcLP5y3hDZpKxK', 'USER'),
 (4, 'Carmen', 'carmen@vet.com', '$2a$12$aXrRPOIJ.vQ3wPN5/6JE0uED39Ez2jf7D9poXGNTN9nufxsI.M2Ii', 'VETERINARY'),
-(5, 'Maribel', 'maribel@vet.com', 'Maribel123.', 'VETERINARY');
+(5, 'Maribel', 'maribel@vet.com', '$2a$12$kpvk6ocqhXWLLNrB049/He2NvWeiSScmXXk3l1QCofgs2ildzAMqi', 'VETERINARY');
 
 INSERT INTO pets(id, name, species, breed, birth_date, image, user_id) VALUES
 (1, 'Luna', 'Perro', 'Golden Retriever', '2021-03-15', 'https://example.com/images/luna.jpg', 1),
