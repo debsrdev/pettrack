@@ -99,9 +99,27 @@ Request:
 ```
 
 - **Testing**
-    - Unit tests with **JUnit** and **Mockito**.
-    - Integration tests with **MockMvc** and `@Sql` dataset.
-    - Coverage > 70% (branches).
+  - Unit tests with **JUnit** and **Mockito**.
+  - Integration tests with **MockMvc** and `@Sql` dataset.
+  - Coverage > 70% (branches).
+
+- **API Documentation**
+  - Full **Swagger** / **OpenAPI** documentation at `/swagger-ui/index.html`.
+  - Includes example requests/responses, role-based access, and error codes.
+
+---
+
+## 🧪 Test Data
+
+Sample users in `test-data.sql` for testing endpoints:
+
+```sql
+INSERT INTO users (id, username, email, password, role) VALUES
+(1, 'dr_smith', 'smith@clinic.com', 'encrypted_password', 'VETERINARY'),
+(2, 'john_doe', 'john@example.com', 'encrypted_password', 'USER');
+```
+
+Sample pets and medical records also included for integration tests.
 
 ---
 
@@ -114,19 +132,23 @@ Request:
 - **Build Tool:** Maven
 - **Testing:** JUnit 5, Mockito, MockMvc
 - **Containerization:** Docker
+- **API Docs:** Springdoc OpenAPI / Swagger UI
 
 ---
 
 ## 📂 Project Structure
 
+```
 src/main/java/com/femcoders/pettrack
-- controllers → REST controllers (Auth, Pet, MedicalRecord)
-- dtos → Data Transfer Objects (e.g., PetRequest, CartDTO)
-- exceptions → Custom exceptions and global handler
-- models → Entities (User, Pet, MedicalRecord)
-- repositories → Spring Data JPA repositories
-- security → JWT authentication & security config
-- services → Service layer interfaces & implementations
+├── controllers      # REST endpoints (Auth, User, Pet, MedicalRecord)
+├── dtos             # DTOs for requests and responses
+├── exceptions       # Custom exceptions & error handling
+├── models           # Entity classes (User, Pet, MedicalRecord)
+├── repositories     # Spring Data JPA repositories
+├── security         # JWT filters, UserDetails, config
+├── services         # Business logic layer
+└── utils            # Role Validator class
+```
 
 
 ---
@@ -134,10 +156,37 @@ src/main/java/com/femcoders/pettrack
 ## 🔒 Security Rules
 
 - **Pet CRUD**
-    - `USER`: Read-only.
-    - `VETERINARY`: Full access (create, update, delete).
+  - `USER`: Read-only.
+  - `VETERINARY`: Full access (create, update, delete).
 - **Medical Records**
-    - Managed only by **VETERINARY** role.
+  - Managed only by **VETERINARY** role.
+- **User Management**
+  - Restricted to **VETERINARY** role.
+
+---
+
+## 📦 How to Run the Project
+
+1. **Clone the repository:**
+```bash
+git clone https://github.com/your-username/pettrack.git
+cd pettrack
+```
+
+2. **Start MySQL (Docker example):**
+```bash
+docker run --name mysql-pettrack -e MYSQL_ROOT_PASSWORD=root123456 -e MYSQL_DATABASE=pettrack -p 3306:3306 -d mysql:8.0
+```
+
+3. **Run the application:**
+```bash
+./mvnw spring-boot:run
+```
+
+4. **Access Swagger UI:**
+```
+http://localhost:8080/swagger-ui/index.html
+```
 
 ---
 
