@@ -1,7 +1,7 @@
 package com.femcoders.pettrack.security.jwt;
 
 import com.femcoders.pettrack.security.UserDetail;
-import com.femcoders.pettrack.services.UserService;
+import com.femcoders.pettrack.services.UserServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,11 +18,10 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println(">>> Entrando al filtro JWT");
         String header = request.getHeader("Authorization");
         if(header == null || !header.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -32,7 +31,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = header.replace("Bearer ", "");
         if(jwtService.isValidToken(token)) {
             String username = jwtService.extractUsername(token);
-            UserDetail userDetail = userService.loadUserByUsername(username);
+            UserDetail userDetail = userServiceImpl.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }

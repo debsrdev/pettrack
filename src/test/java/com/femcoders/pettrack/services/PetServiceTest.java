@@ -23,13 +23,11 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.mockito.Mockito.lenient;
@@ -48,7 +46,7 @@ public class PetServiceTest {
     UserRepository userRepository;
 
     @InjectMocks
-    PetService petService;
+    PetServiceImpl petService;
 
     private Pet pet1;
     private Pet pet2;
@@ -421,8 +419,8 @@ public class PetServiceTest {
             Throwable throwable = catchThrowable(()->petService.createPet(petRequestException, userVeterinary));
 
             assertThat(throwable)
-                    .isInstanceOf(NoSuchElementException.class)
-                    .hasMessage("User not found with username Nombre de usuario");
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessage("User not found with username: Nombre de usuario");
 
             verify(userRepository).findByUsernameIgnoreCase("Nombre de usuario");
         }
@@ -474,8 +472,8 @@ public class PetServiceTest {
                     petService.updatePet(1L, updatedPetRequestUsernameInvalid, userVeterinary));
 
             assertThat(throwable)
-                    .isInstanceOf(NoSuchElementException.class)
-                    .hasMessage("User not found with username Nombre de usuario");
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessage("User not found with username: Nombre de usuario");
 
             verify(petRepository).findById(1L);
             verify(userRepository).findByUsernameIgnoreCase("Nombre de usuario");
