@@ -185,7 +185,7 @@ public class PetServiceTest {
 
             List<PetResponse> result = petService.getAllPets();
 
-            assertThat(result).hasSize(1);
+            assertThat(result).hasSize(2);
             assertThat(result).containsExactly(petResponse1, petResponse2);
 
             verify(petRepository).findAll();
