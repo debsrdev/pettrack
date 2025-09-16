@@ -190,6 +190,86 @@ http://localhost:8080/swagger-ui/index.html
 
 ---
 
+## 🔄 CI/CD Workflows
+
+This project uses **GitHub Actions** to automate build, testing, and release tasks. Think of the workflows as a virtual assistant that checks your code every time you make changes.
+
+### 1. 🏗️ Build Workflow
+
+**File**: `.github/workflows/build.yml`
+
+Runs automatically when:
+
+* You push to `main` or `dev`
+* You open or update a Pull Request
+* Manually from the "Actions" tab
+
+### 2. ✅ Test Workflow
+
+**File**: `.github/workflows/test.yml`
+
+Runs automatically when:
+
+* You push to `main` or `dev`
+* You open or update a Pull Request
+* Manually from the "Actions" tab
+
+### 3. 🚀 Release Workflow
+
+**File**: `.github/workflows/release.yml`
+
+Runs when:
+
+* You create a tag starting with `v` (example: `v0.0.1`)
+
+## 🚦 Workflow Status
+
+[![Build](https://github.com/debsrdev/pettrack/actions/workflows/build.yml/badge.svg)](https://github.com/debsrdev/pettrack/actions/workflows/build.yml)
+[![Test](https://github.com/debsrdev/pettrack/actions/workflows/test.yml/badge.svg)](https://github.com/debsrdev/pettrack/actions/workflows/test.yml)
+
+## 📝 Secrets Configuration
+
+For the workflows to work properly, you need to configure these secrets in your GitHub repository:
+
+1. Go to **Settings** → **Secrets and variables** → **Actions**
+2. Add the following secrets:
+
+
+| Secret            | Description              | Example     |
+| ----------------- | ------------------------ |-------------|
+| `DOCKER_USERNAME` | Your Docker Hub username | `debsrub`   |
+| `DOCKER_PASSWORD` | Your Docker Hub token    | `xxxxxx...` |
+
+## 🎯 How to Create a Release
+
+```bash
+# 1. Make sure you are on main and up to date
+git checkout main
+git pull origin main
+
+# 2. Create and push the tag
+git tag v0.0.1
+git push origin v0.0.1
+```
+
+The workflow will run automatically and will:
+
+* Build the JAR
+* Create Docker images
+* Push them to Docker Hub
+* Create a GitHub release
+
+## 🐛 Debugging Workflows
+
+If something fails:
+
+1. **Go to the "Actions" tab** in your repository
+2. **Find the failed workflow** (it will appear with ❌)
+3. **Click on it** to see detailed logs
+4. **Check each step** to find the error
+
+---
+
 ## 👩‍💻 Author
 
 Developed by **Débora Rubio** as part of an individual backend development project.
